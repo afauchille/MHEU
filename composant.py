@@ -10,7 +10,7 @@ def random_permutation(grid):
     grid[i1] = grid[i2]
     grid[i2] = swap
 
-def composant(links):
+def composant(links, p=0.7):
     ### Init
     tentatives = 0
     success = 0
@@ -23,7 +23,6 @@ def composant(links):
         shuffle(grid)
     mean = e // 100
     print(mean)
-    p = 0.70
     T = -mean / log(p)
     print(T)
 
@@ -34,10 +33,12 @@ def composant(links):
         cpy = grid.copy()
         random_permutation(grid)
         new_e = compute_len(grid, links)
+
         if new_e < e:
             print("Progressing...")
             success += 1
             successive_fails = 0
+
         else:
             print("Regressing...")
             p = exp((e - new_e) / T)
@@ -52,16 +53,21 @@ def composant(links):
                 grid = cpy
                 successive_fails += 1
 
-        if success == 12 * N or tentatives == 100 * N:
+        if success == 12 * N:
             # abort
-            print("System balanced")
+            print("System balanced (success)")
             break
+
+        if tentatives == 100 * N:
+            # abort
+            print("System balanced (tentatives)")
 
         if successive_fails == 100:
             print("System blocked")
             break
 
         T *= 0.9
+        print("New T: %f" % T)
 
     print(grid)
     print(compute_len(grid, links))
@@ -100,4 +106,4 @@ def compute_len(grid, links):
 
 # main
 N = 5
-composant(gen_links())
+composant(gen_links(), p=0.6)
