@@ -17,14 +17,18 @@ def composant(links, p=0.7):
     successive_fails = 0
     grid = [i for i in range(N * N)]
     shuffle(grid)
+    e_init = compute_len(grid, links)
     e = 0
     for i in range(100):
-        e += compute_len(grid, links)
+        new_e = compute_len(grid, links)
+        e += abs(new_e - e_init)
+        e_init = new_e
         shuffle(grid)
     mean = e // 100
-    print(mean)
+    print("Mean: " + str(mean))
     T = -mean / log(p)
-    print(T)
+    print("Initial T: " + str(T))
+    input()
 
     ### Loop
     while True:
@@ -33,17 +37,18 @@ def composant(links, p=0.7):
         cpy = grid.copy()
         random_permutation(grid)
         new_e = compute_len(grid, links)
+        d_e = new_e - e
 
-        if new_e < e:
-            print("Progressing...")
+        if d_e <= 0:
+            #print("Progressing...")
             success += 1
             successive_fails = 0
 
         else:
-            print("Regressing...")
-            p = exp((e - new_e) / T)
+            #print("Regressing...")
+            p = exp(-d_e / T)
             r = uniform(0, 1)
-            print(p)
+            #print(p)
             if r < p:
                 # accepted
                 success += 1
@@ -53,20 +58,21 @@ def composant(links, p=0.7):
                 grid = cpy
                 successive_fails += 1
 
-        if success == 12 * N:
-            # abort
-            print("System balanced (success)")
-            break
+        if success == 12 * N * N or tentatives == 100 * N * N:
+            T *= 0.9
+            success = 0
+            tentatives = 0
+            successive_fails = 0
+            print("Equilibre thermodynamique")
+            print("E = " + str(e))
+            print("Temp = " + str(T))
+            input()
+            continue
 
-        if tentatives == 100 * N:
-            # abort
-            print("System balanced (tentatives)")
-
-        if successive_fails == 100:
+        if successive_fails == 10:
             print("System blocked")
             break
 
-        T *= 0.9
         print("New T: %f" % T)
 
     print(grid)
