@@ -1,5 +1,8 @@
 from random import shuffle, randrange, uniform
 from math import exp, log
+import networkx as nx
+import matplotlib.pyplot as plt
+import time
 
 def random_permutation(grid):
     i1 = randrange(0, N * N)
@@ -14,7 +17,6 @@ def composant(links, p=0.7):
     ### Init
     tentatives = 0
     success = 0
-    successive_fails = 0
     grid = [i for i in range(N * N)]
     shuffle(grid)
     e_init = compute_len(grid, links)
@@ -30,6 +32,8 @@ def composant(links, p=0.7):
     print("Initial T: " + str(T))
     input()
 
+    nb_eq = 0
+
     ### Loop
     while True:
         tentatives += 1
@@ -42,41 +46,41 @@ def composant(links, p=0.7):
         if d_e <= 0:
             #print("Progressing...")
             success += 1
-            successive_fails = 0
 
         else:
             #print("Regressing...")
             p = exp(-d_e / T)
+            #print(p)
             r = uniform(0, 1)
             #print(p)
             if r < p:
                 # accepted
                 success += 1
-                successive_fails = 0
             else:
                 # declined, roll back
                 grid = cpy
-                successive_fails += 1
 
         if success == 12 * N * N or tentatives == 100 * N * N:
             T *= 0.9
             success = 0
             tentatives = 0
-            successive_fails = 0
+            nb_eq += 1
             print("Equilibre thermodynamique")
             print("E = " + str(e))
             print("Temp = " + str(T))
-            input()
+            draw_graph(grid, links)
+            #input()
             continue
 
-        if successive_fails == 10:
+        if T <= 1:
             print("System blocked")
             break
 
-        print("New T: %f" % T)
+        #print("New T: %f" % T)
 
     print(grid)
     print(compute_len(grid, links))
+    draw_graph(grid, links)
 
 
 
@@ -97,6 +101,14 @@ def gen_links():
         links.append((num, num + 1)) # right link
     return links
 
+def draw_graph(nodes, links):
+    g = nx.Graph()
+    g.add_nodes_from(nodes)
+    g.add_edges_from(links)
+    nx.draw(g)
+    plt.show()
+    plt.pause(0.05)
+    plt.gcf().clear()
 
 def coord(i, grid):
     ind = grid.index(i)
@@ -112,4 +124,4 @@ def compute_len(grid, links):
 
 # main
 N = 5
-composant(gen_links(), p=0.6)
+composant(gen_links(), p=0.2)
