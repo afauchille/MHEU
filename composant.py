@@ -19,6 +19,7 @@ def composant(links, p=0.7):
     success = 0
     grid = [i for i in range(N * N)]
     shuffle(grid)
+    draw_graph(grid, links)
     e_init = compute_len(grid, links)
     e = 0
     for i in range(100):
@@ -30,7 +31,6 @@ def composant(links, p=0.7):
     print("Mean: " + str(mean))
     T = -mean / log(p)
     print("Initial T: " + str(T))
-    input()
 
     nb_eq = 0
 
@@ -44,15 +44,11 @@ def composant(links, p=0.7):
         d_e = new_e - e
 
         if d_e <= 0:
-            #print("Progressing...")
             success += 1
 
         else:
-            #print("Regressing...")
             p = exp(-d_e / T)
-            #print(p)
             r = uniform(0, 1)
-            #print(p)
             if r < p:
                 # accepted
                 success += 1
@@ -68,8 +64,7 @@ def composant(links, p=0.7):
             print("Equilibre thermodynamique")
             print("E = " + str(e))
             print("Temp = " + str(T))
-            draw_graph(grid, links)
-            #input()
+            #draw_graph(grid, links)
             continue
 
         if T <= 1:
@@ -105,10 +100,17 @@ def draw_graph(nodes, links):
     g = nx.Graph()
     g.add_nodes_from(nodes)
     g.add_edges_from(links)
-    nx.draw(g)
+    
+    pos = {}
+    for i, v in zip(nodes, range(N * N)):
+        pos[v] = (i // N, i % N)
+    #labels = dict( ((i, j), i * 10 + j) for i, j in g.nodes() )
+    
+    nx.draw_networkx(g, pos=pos)
     plt.show()
-    plt.pause(0.05)
-    plt.gcf().clear()
+    print(g.nodes())
+    #plt.pause(0.05)
+    #plt.gcf().clear()
 
 def coord(i, grid):
     ind = grid.index(i)
