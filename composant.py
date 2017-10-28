@@ -98,7 +98,7 @@ def draw_graph(nodes, links, pause=True):
     g = nx.Graph()
     g.add_nodes_from(nodes)
     g.add_edges_from(links)
-    
+
     pos = {}
     for i, v in zip(nodes, range(N * N)):
         pos[v] = (i // N, i % N)
