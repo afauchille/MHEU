@@ -40,15 +40,37 @@ def Rosenbrock(X):
         res += 100 * power(x * x - xp, 2) + x - 1
     return res
 
+def Zakharov(X):
+    tmp = np.dot(np.arange(1, X.shape[0] + 1), X) * 0.5
+    res = np.dot(X, X) + tmp ** 2 + tmp ** 4
+    return res
+
+def Schwefel1(X):
+    return -np.sum(X * np.sin(np.sqrt(np.abs(X))))
 
 def plot3D(f, low_pos, high_pos):
-    x = np.linspace(low_pos, high_pos, 100)
-    y = np.linspace(low_pos, high_pos, 100)
-    z = [f([xi, yi]) for xi, yi in zip(x, y)]
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
-    ax.plot_surface(x, y, z)
+    x = y = np.linspace(low_pos, high_pos, 100)
+    X, Y = np.meshgrid(x, y)
+    zs = np.array([f(np.array([x,y])) for x,y in zip(np.ravel(X), np.ravel(Y))])
+    Z = zs.reshape(X.shape)
+
+    ax.plot_surface(X, Y, Z)
+
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel("{}(X, Y)".format(f.__name__))
+
     plt.show()
 
-#print(Rosenbrock([0, 1, 2, 3, 4, 5]))
-plot3D(DeJongF1, -5.12, 5.12)
+
+funs = [Michalewicz, DeJongF1, DeJongF2, DeJongF3, GP, Rosenbrock, Zakharov, Schwefel1]
+bounds = [(0, np.pi), (-5.12, 5.12), (-2.048, 2.048), (-5.12, 5.12), (-2, 2), (-2.048, 2.048), (-5, 10), (-500, 500)]
+
+def fun_test():
+    for f, bound in zip(funs, bounds):
+        plot3D(f, bound[0], bound[1])
+#print(Zakharov(np.array([421, 421, 421])))
+
+#fun_test()
