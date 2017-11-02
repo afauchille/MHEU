@@ -73,4 +73,5 @@ def fun_test():
         plot3D(f, bound[0], bound[1])
 #print(Zakharov(np.array([421, 421, 421])))
 
-#fun_test()
+if __name__ == '__main__':
+    fun_test()

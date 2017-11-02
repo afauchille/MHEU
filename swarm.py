@@ -14,7 +14,7 @@ class Agent():
 
     def reset(self, f, D, low_pos, high_pos):
         self.x = np.random.uniform(low_pos, high_pos, D)
-        self.v = np.zeros(D)
+        self.v = np.random.uniform(low_pos - high_pos , high_pos - low_pos, D)
         self.low_pos = low_pos
         self.high_pos = high_pos
         self.bx = np.copy(self.x)
@@ -67,5 +67,5 @@ class Swarm(object):
         print("\nX boundaries:\n- Low: {}\n- High: {}\n\nSwarm:\n- Number of agents: {}\n- Number of iterations: {}\n\nConstants:\n- c: {}\n- Phi1: {}\n- Phi2: {}"
                 .format(self.low_pos, self.high_pos, self.nb_agents, self.nb_iter, self.c, self.phi1, self.phi2))
 
-s = Swarm(DeJongF1, 6, -5.12, 5.12, nb_iter=1000, nb_agents=50, c=1, phi1=2, phi2=2)
+s = Swarm(DeJongF1, 10, -5.12, 5.12, nb_iter=10, nb_agents=200, c=1, phi1=2, phi2=2)
 s.resolve()
