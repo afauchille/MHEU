@@ -3,6 +3,20 @@ import matplotlib.pyplot as plt
 import numpy as np
 from numpy import power, sin, floor
 
+class FuncTest:
+    def __init__(self, f, low, high, f_min_D, dims):
+        self.f = f
+        self.low = low
+        self.high = high
+        self.f_min_D = f_min_D
+        self.dims = dims
+
+    def min(self, D):
+        return f_min_D(D)
+
+    def __str__(self):
+        return "Fonctor for {}:\n- Available dimensions:{}\n- Bounds: [{}, {}]\n".format(self.f.__name__, self.dims, self.low, self.high)
+
 def Michalewicz(X):
     res = 0
     for i, x in enumerate(X):
@@ -64,14 +78,51 @@ def plot3D(f, low_pos, high_pos):
 
     plt.show()
 
+def MichalewiczMin(D):
+    if D == 1:
+        return -0.801303411
+    elif D == 2:
+        return -1.8013034101
+    elif D == 3:
+        return -2.7603946800
+    elif D == 4:
+        return -3.6988570985
+    elif D == 5:
+        return -4.6876581791
+    elif D == 6:
+        return -5.6876582
+    elif D == 7:
+        return -6.6808853
+    elif D == 8:
+        return -7.6637574
+    elif D == 9:
+        return -8.6601517
+    elif D == 10:
+        return -9.6601517156
+
+def dim_gen(x):
+    if x is None:
+        return np.arange(2, 11)
+    else:
+        return x
 
 funs = [Michalewicz, DeJongF1, DeJongF2, DeJongF3, GP, Rosenbrock, Zakharov, Schwefel1]
+funs_min = [MichalewiczMin, lambda D: 0, lambda D: 0, lambda D: -6 * D, lambda D: 3, lambda D: 0, lambda D: 0, lambda D: -D * 417.9829]
 bounds = [(0, np.pi), (-5.12, 5.12), (-2.048, 2.048), (-5.12, 5.12), (-2, 2), (-2.048, 2.048), (-5, 10), (-500, 500)]
+dims = [None, None, [2], None, [2], None, None, None]
+test_functions = {}
+def gen_test_functions():
+    for f, f_min, bound, dim in zip(funs, funs_min, bounds, dims):
+        ftst = FuncTest(f, bound[0], bound[1], f_min, dim_gen(dim))
+        test_functions[f.__name__] = ftst
+        #print(ftst)
 
-def fun_test():
+
+def fun_plot():
     for f, bound in zip(funs, bounds):
         plot3D(f, bound[0], bound[1])
 #print(Zakharov(np.array([421, 421, 421])))
 
 if __name__ == '__main__':
-    fun_test()
+    #fun_plot()
+    fun()
