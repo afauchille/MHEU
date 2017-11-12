@@ -79,7 +79,7 @@ class HyperSwarm:
     def __init__(self):
         pass
 
-    def run(self, f, D, nb_iter_b, nb_agents_b, c_b, phi1_b, phi2_b):
+    def run(self, f, D, nb_iter, nb_agents, c_b, phi1_b, phi2_b):
         random.seed()
         s = Swarm(f.f, D, f.low, f.high, nb_iter_b[0], nb_agents_b[0], c_b[0], phi1_b[0], phi2_b[0])
         meta = s.resolve(verbose=False)
@@ -90,4 +90,4 @@ class HyperSwarm:
 
 gen_test_functions()
 ss = HyperSwarm()
-ss.run(test_functions['DeJongF1'], 5, (300, 1000), (20, 100), (1, 1), (2, 2), (2, 2))
+ss.run(test_functions['DeJongF1'], 5, 1000, 100, (1, 1), (2, 2), (2, 2))
