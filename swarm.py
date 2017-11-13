@@ -26,7 +26,13 @@ class Agent():
     def update(self, f, c, phi1, phi2, cur_iter):
         c2 = random.uniform(0, phi1)
         c3 = random.uniform(0, phi2)
-        self.v = c * self.v + c2 * (self.bx - self.x) + c3 * (Agent.best_x - self.x)
+        toOwnBest = self.bx - self.x
+        # Test if Agent.best_x == np.zeros(D) (first iteration)
+        if not np.any(Agent.best_x):
+            toBest = np.zeros(self.x.shape)
+        else:
+            toBest = Agent.best_x - self.x
+        self.v = c * self.v + c2 * toOwnBest + c3 * toBest
 
         # Could update v to real speed in case of clipping
         self.x += self.v
@@ -78,7 +84,7 @@ class Swarm:
 def t_mean(t):
     return (t[1] + t[0]) / 2
 
-class HyperSwarm:
+class MetaSwarm:
     def __init__(self):
         pass
 
@@ -95,6 +101,7 @@ class HyperSwarm:
             s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, c, best_phi1, best_phi2)
             meta = s.resolve(verbose=False)
             if meta['y_min'] < miny:
+                print('Better minimium found: {} => {}, c = {}'.format(miny, meta['y_min'], c))
                 miny = meta['y_min']
                 minx = meta['x_min']
                 best_c = c
@@ -106,6 +113,7 @@ class HyperSwarm:
             s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, best_c, phi1, best_phi2)
             meta = s.resolve(verbose=False)
             if meta['y_min'] < miny:
+                print('Better minimium found: {} => {}, phi1 = {}'.format(miny, meta['y_min'], phi1))
                 miny = meta['y_min']
                 minx = meta['x_min']
                 best_phi1 = phi1
@@ -117,16 +125,31 @@ class HyperSwarm:
             s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, best_c, best_phi1, phi2)
             meta = s.resolve(verbose=False)
             if meta['y_min'] < miny:
+                print('Better minimium found: {} => {}, phi2 = {}'.format(miny, meta['y_min'], phi2))
                 miny = meta['y_min']
                 minx = meta['x_min']
                 best_phi2 = phi2
 
         #print('Minimum found for function {}: {} for x = {} after #{} iterations'.format(f.f.__name__, meta['y_min'], meta['x_min'], meta['iter_needed']))
-        print("Best configuration found: c = {}, phi1 = {}, phi2 = {}".format(c, phi1, phi2))
+        print("Best configuration found: c = {}, phi1 = {}, phi2 = {}".format(best_c, best_phi1, best_phi2))
+
+        print("Running with optimal parameters...")
+
+        minx, miny = [], sys.maxsize
+        for i in range(10):
+            s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, best_c, best_phi1, best_phi2)
+            meta = s.resolve(verbose=False)
+            if meta['y_min'] < miny:
+                miny = meta['y_min']
+                minx = meta['x_min']
+
+        print("Optimum found by MetaSwarm: {} for x = {}".format(miny, minx))
+
+        return miny
 
 #s = Swarm(DeJongF1, 10, -5.12, 5.12, nb_iter=10, nb_agents=200, c=1, phi1=2, phi2=2)
 #s.resolve()
 
 gen_test_functions()
-ss = HyperSwarm()
-ss.run(test_functions['DeJongF1'], 5, 1000, 100, (0., 2.), (0., 2.), (0., 2.))
+ss = MetaSwarm()
+ss.run(test_functions['DeJongF1'], 5, 1000, 100, (0.1, 1.), (0.1, 1.), (0.1, 1.))
