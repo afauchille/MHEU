@@ -4,6 +4,8 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import time
 
+nb_pic = 0
+
 def random_permutation(grid):
     i1 = randrange(0, N * N)
     i2 = randrange(0, N * N)
@@ -34,7 +36,8 @@ def composant(links, p=0.7):
     draw_graph(grid, links)
 
     ### Loop
-    while True:
+    looping = True
+    while looping:
         tentatives += 1
         e = compute_len(grid, links)
         cpy = grid.copy()
@@ -68,6 +71,7 @@ def composant(links, p=0.7):
         if T <= 1:
             print("System blocked")
             break
+            looping = False
 
         #print("New T: %f" % T)
 
@@ -95,6 +99,7 @@ def gen_links():
     return links
 
 def draw_graph(nodes, links, pause=True):
+    global nb_pic
     g = nx.Graph()
     g.add_nodes_from(nodes)
     g.add_edges_from(links)
@@ -102,6 +107,12 @@ def draw_graph(nodes, links, pause=True):
     pos = {}
     for i, v in zip(nodes, range(N * N)):
         pos[v] = (i // N, i % N)
+    # Save fig
+    fig = plt.gcf()
+    filename = "output/p08_" + str(nb_pic).zfill(2) + ".png"
+    nb_pic += 1
+    plt.savefig(filename, dpi=fig.dpi)
+
     plt.gcf().clear()
     nx.draw_networkx(g, pos=pos)
     if pause:
@@ -124,4 +135,4 @@ def compute_len(grid, links):
 
 # main
 N = 5
-composant(gen_links(), p=0.2)
+composant(gen_links(), p=0.8)
