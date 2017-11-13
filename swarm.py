@@ -75,19 +75,58 @@ class Swarm:
         'iter_needed' : Agent.timestamp
         }
 
+def t_mean(t):
+    return (t[1] + t[0]) / 2
+
 class HyperSwarm:
     def __init__(self):
         pass
 
     def run(self, f, D, nb_iter, nb_agents, c_b, phi1_b, phi2_b):
         random.seed()
-        s = Swarm(f.f, D, f.low, f.high, nb_iter_b[0], nb_agents_b[0], c_b[0], phi1_b[0], phi2_b[0])
-        meta = s.resolve(verbose=False)
-        print('Minimum found for function {}: {} for x = {} after #{} iterations'.format(f.f.__name__, meta['y_min'], meta['x_min'], meta['iter_needed']))
+        nb_ech = 10
+
+        best_c, best_phi1, best_phi2 = t_mean(c_b), t_mean(phi1_b), t_mean(phi2_b)
+
+        print("Optimizing c...")
+
+        minx, miny = [], sys.maxsize
+        for c in np.linspace(c_b[0], c_b[1], nb_ech):
+            s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, c, best_phi1, best_phi2)
+            meta = s.resolve(verbose=False)
+            if meta['y_min'] < miny:
+                miny = meta['y_min']
+                minx = meta['x_min']
+                best_c = c
+
+        print("Optimizing phi1...")
+
+        minx, miny = [], sys.maxsize
+        for phi1 in np.linspace(phi1_b[0], phi1_b[1], nb_ech):
+            s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, best_c, phi1, best_phi2)
+            meta = s.resolve(verbose=False)
+            if meta['y_min'] < miny:
+                miny = meta['y_min']
+                minx = meta['x_min']
+                best_phi1 = phi1
+
+        print("Optimizing phi2...")
+
+        minx, miny = [], sys.maxsize
+        for phi2 in np.linspace(phi2_b[0], phi2_b[1], nb_ech):
+            s = Swarm(f.f, D, f.low, f.high, nb_iter, nb_agents, best_c, best_phi1, phi2)
+            meta = s.resolve(verbose=False)
+            if meta['y_min'] < miny:
+                miny = meta['y_min']
+                minx = meta['x_min']
+                best_phi2 = phi2
+
+        #print('Minimum found for function {}: {} for x = {} after #{} iterations'.format(f.f.__name__, meta['y_min'], meta['x_min'], meta['iter_needed']))
+        print("Best configuration found: c = {}, phi1 = {}, phi2 = {}".format(c, phi1, phi2))
 
 #s = Swarm(DeJongF1, 10, -5.12, 5.12, nb_iter=10, nb_agents=200, c=1, phi1=2, phi2=2)
 #s.resolve()
 
 gen_test_functions()
 ss = HyperSwarm()
-ss.run(test_functions['DeJongF1'], 5, 1000, 100, (1, 1), (2, 2), (2, 2))
+ss.run(test_functions['DeJongF1'], 5, 1000, 100, (0., 2.), (0., 2.), (0., 2.))
