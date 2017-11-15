@@ -1,5 +1,6 @@
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
+from matplotlib import cm
 import numpy as np
 from numpy import power, sin, floor
 
@@ -12,7 +13,7 @@ class FuncTest:
         self.dims = dims
 
     def min(self, D):
-        return f_min_D(D)
+        return self.f_min_D(D)
 
     def __str__(self):
         return "Fonctor for {}:\n- Available dimensions:{}\n- Bounds: [{}, {}]\n".format(self.f.__name__, self.dims, self.low, self.high)
@@ -28,9 +29,9 @@ def DeJongF1(X):
     return np.dot(X, X)
 
 # D = 2
-# f([1, 1, 1]) = 0
+# f([1, 1]) = 0
 def DeJongF2(X):
-    return 100 * (X[1] * X[1] - X[0]) + 1 - X[0]
+    return 100 * (X[0] * X[0] - X[1]) ** 2 + (1 - X[0]) ** 2
 
 def DeJongF3(X):
     res = 0
@@ -38,12 +39,11 @@ def DeJongF3(X):
         res += floor(x)
     return res
 
-#TODO
 # D = 2
-#f([-1, 0]) = 3
+#f([0, -1]) = 3
 def GP(X):
-    f1 = (1 + power(X[0] + X[1] + 1, 2) * (19 - 14 * X[0] + 13 * X[0] * X[0] - 14 * X[1] + 6 * X[0] * X[1] + 3 * X[1] * X[1]))
-    f2 = (30 + power(2 * X[0] - 3 * X[1], 2) * (18 - 32 * X[0] + 12 * X[0] * X[0] - 48 * X[1] - 36 * X[0] * X[1] + 27 * X[1] * X[1]))
+    f1 = (1 + power(X[0] + X[1] + 1, 2) * (19 - 14 * X[0] + 3 * X[0] * X[0] - 14 * X[1] + 6 * X[0] * X[1] + 3 * X[1] * X[1]))
+    f2 = (30 + power(2 * X[0] - 3 * X[1], 2) * (18 - 32 * X[0] + 12 * X[0] * X[0] + 48 * X[1] - 36 * X[0] * X[1] + 27 * X[1] * X[1]))
     return f1 * f2
 
 def Rosenbrock(X):
@@ -51,7 +51,7 @@ def Rosenbrock(X):
     for i in range(len(X) - 1):
         x = X[i]
         xp = X[i + 1]
-        res += 100 * power(x * x - xp, 2) + x - 1
+        res += 100 * power(x * x - xp, 2) + (x - 1) ** 2
     return res
 
 def Zakharov(X):
@@ -62,7 +62,7 @@ def Zakharov(X):
 def Schwefel1(X):
     return -np.sum(X * np.sin(np.sqrt(np.abs(X))))
 
-def plot3D(f, low_pos, high_pos):
+def plot3D(f, low_pos, high_pos, px=None, py=None, pz=None):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     x = y = np.linspace(low_pos, high_pos, 100)
@@ -70,7 +70,7 @@ def plot3D(f, low_pos, high_pos):
     zs = np.array([f(np.array([x,y])) for x,y in zip(np.ravel(X), np.ravel(Y))])
     Z = zs.reshape(X.shape)
 
-    ax.plot_surface(X, Y, Z)
+    ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
 
     ax.set_xlabel('X')
     ax.set_ylabel('Y')
@@ -125,4 +125,5 @@ def fun_plot():
 
 if __name__ == '__main__':
     #fun_plot()
-    fun()
+    #fun()
+    plot3D(GP, -2, 2)

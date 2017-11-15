@@ -22,6 +22,8 @@ class Agent():
 
     def init(D):
         Agent.best_x = np.zeros(D)
+        Agent.best_y = sys.maxsize
+        Agent.timestamp = 0
 
     def update(self, f, c, phi1, phi2, cur_iter):
         c2 = random.uniform(0, phi1)
@@ -77,7 +79,7 @@ class Swarm:
                     .format(self.low_pos, self.high_pos, self.nb_agents, self.nb_iter, self.c, self.phi1, self.phi2))
         return {
         'y_min' : Agent.best_y,
-        'x_min' : Agent.best_x,
+        'x_min' : np.copy(Agent.best_x),
         'iter_needed' : Agent.timestamp
         }
 
@@ -92,6 +94,8 @@ class MetaSwarm:
         random.seed()
         nb_ech = 10
 
+        print(f)
+
         best_c, best_phi1, best_phi2 = t_mean(c_b), t_mean(phi1_b), t_mean(phi2_b)
 
         print("Optimizing c...")
@@ -103,7 +107,7 @@ class MetaSwarm:
             if meta['y_min'] < miny:
                 print('Better minimium found: {} => {}, c = {}'.format(miny, meta['y_min'], c))
                 miny = meta['y_min']
-                minx = meta['x_min']
+                minx = np.copy(meta['x_min'])
                 best_c = c
 
         print("Optimizing phi1...")
@@ -115,7 +119,7 @@ class MetaSwarm:
             if meta['y_min'] < miny:
                 print('Better minimium found: {} => {}, phi1 = {}'.format(miny, meta['y_min'], phi1))
                 miny = meta['y_min']
-                minx = meta['x_min']
+                minx = np.copy(meta['x_min'])
                 best_phi1 = phi1
 
         print("Optimizing phi2...")
@@ -127,7 +131,7 @@ class MetaSwarm:
             if meta['y_min'] < miny:
                 print('Better minimium found: {} => {}, phi2 = {}'.format(miny, meta['y_min'], phi2))
                 miny = meta['y_min']
-                minx = meta['x_min']
+                minx = np.copy(meta['x_min'])
                 best_phi2 = phi2
 
         #print('Minimum found for function {}: {} for x = {} after #{} iterations'.format(f.f.__name__, meta['y_min'], meta['x_min'], meta['iter_needed']))
@@ -141,9 +145,12 @@ class MetaSwarm:
             meta = s.resolve(verbose=False)
             if meta['y_min'] < miny:
                 miny = meta['y_min']
-                minx = meta['x_min']
+                minx = np.copy(meta['x_min'])
 
         print("Optimum found by MetaSwarm: {} for x = {}".format(miny, minx))
+        print("Optimum: {}".format(f.min(D)))
+
+        #plot3D(f, low_pos, high_pos)
 
         return miny
 
@@ -152,4 +159,4 @@ class MetaSwarm:
 
 gen_test_functions()
 ss = MetaSwarm()
-ss.run(test_functions['DeJongF1'], 5, 1000, 100, (0.1, 1.), (0.1, 1.), (0.1, 1.))
+ss.run(test_functions['Rosenbrock'], 5, 1000, 100, (0.1, 1.), (0.1, 1.), (0.1, 1.))
